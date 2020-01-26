@@ -27,19 +27,6 @@ t2.start()
 for f in funcs:
     f()
 
-def test_gen(sequence):
-    alpha = ["", "0", "1", "2", "3", "4", "5"]
-    guess = ""
-    l = 4
-    for i in range(0, l):
-        guess = alpha[(sequence % len(alpha))] + guess
-        sequence // len(alpha)
-
-    print(guess)
-
-for i in range(0, 50):
-    test_gen(i)
-
 
 def print_writer(data, file):
     print(data)
