@@ -8,7 +8,7 @@
 
 from cracker import *
 import hashlib
-from rules import Passwordify1, funcs
+from rules import Passwordify1, wordlist
 import sys
 import time
 
@@ -23,9 +23,6 @@ t2 = Cracker(1, 2)
 
 t1.start()
 t2.start()
-
-for f in funcs:
-    f()
 
 
 def print_writer(data, file):
@@ -58,7 +55,18 @@ def main():
 
         print_writer("hello world!", outStream)
 
-    print(Passwordify1.process("abcdefg"))
+    with open(wordlist, "r") as file:
+        lines = 0
+        for line in file:
+            lines += 1
+
+        print(lines)
+
+    passGen = Passwordify1(235800, 235886)
+    passwd = ""
+    while passwd is not None:
+        passwd = passGen.next()
+        print(passwd)
 
 if __name__ == "__main__":
     main()

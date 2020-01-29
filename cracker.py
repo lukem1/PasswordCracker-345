@@ -7,24 +7,9 @@
 #
 
 import hashlib
-import threading
-import time
-
-# TODO: kill related threads when a thread cracks a password
-class Cracker(threading.Thread):
-    def __init__(self, threadID, generator):
-        threading.Thread.__init__(self)
-        self.name = "Thread " + str(threadID)
-        self.threadID = threadID
-        self.generator = generator
-
-    def run(self):
-        print("Starting " + self.name)
-        for i in range(0, 2*self.threadID):
-            print("Thread %s execution %d" % (self.threadID, i))
-            time.sleep(1)
-        print("Exiting " + self.name)
-
+from rules import rules
+def crack(bounds, hashes):
+    pass
 
 # Calculate and return the 256 bit shasum of a password
 def calc_hash(password):

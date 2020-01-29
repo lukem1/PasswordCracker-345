@@ -6,42 +6,41 @@
 # 19 January 2020
 #
 
-# Note: The classes in this file are not meant to be initialized.
-# They are meant to provide an easy way to develop generators and rulesets.
-# TODO: Shift to a "generator" based design
-# TODO: Remove or revise comments
-# The following class provides a template for the creation of generators which can be used to generate password guesses
-# To create a generator a subclass should be made which modifies the generate method
-
-# The following class provides a template for the creation of rulesets for reading in passwords from wordlists
-# To create a ruleset a subclass should be made which modifies the process method
-def func1():
-    print("one")
-
-def func2():
-    print("two")
-
-funcs = [func1, func2]
+rules = []
+wordlist = "/usr/share/dict/words"
 
 class Rule():
-    name = "name of rule"
-    description = "description of rule"
+    sequence = 0
+    upperBound = None
 
-    # Receives the next word from the wordlist and applies the ruleset.
-    # Returns a list of generated passwords, if none are generated return an empty list.
-    def process(word):
-        return [word]
+    # Initialize the rule and move to the lower bound
+    def __init__(self, lower, upper):
+        self.upperBound = upper
 
-    def getInfo(self):
-        return self.name, self.description
+        for i in range(0, lower):
+            self.next()
 
-# Rule Definitions
+    # Return the next password(s) in the sequence and add to the sequence number
+    def next(self):
+        self.sequence += 1
+        raise NotImplementedError
 
-# 7 char word, first letter capitalized and a 1-digit number appended.
+    # Close wordlists and perform other cleanup actions
+    def clean(self):
+        raise NotImplementedError
+
 
 class Passwordify1(Rule):
+    list = open(wordlist)
 
-    def process(word):
+    def next(self):
+        self.sequence += 1
+
+        if self.sequence > self.upperBound:
+            return None
+
+        word = self.list.readline().replace("\n", "")
+
         if len(word) != 7:
             return []
 
@@ -50,6 +49,9 @@ class Passwordify1(Rule):
         base = word[0].upper() + word[1:]
 
         for i in range(0, 10):
-            passwords.append(base+str(i))
+            passwords.append(base + str(i))
 
         return passwords
+
+    def clean(self):
+        self.list.close()
