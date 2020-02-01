@@ -9,7 +9,8 @@
 rules = []
 wordlist = "/usr/share/dict/words"
 
-class Rule():
+
+class Rule:
     sequence = 0
     upperBound = None
 
@@ -31,7 +32,11 @@ class Rule():
 
 
 class Passwordify1(Rule):
-    list = open(wordlist)
+    list = None
+
+    def __init__(self, lower, upper):
+        Rule.__init__(self, lower, upper)
+        self.list = open(wordlist, 'r')
 
     def next(self):
         self.sequence += 1
@@ -41,17 +46,21 @@ class Passwordify1(Rule):
 
         word = self.list.readline().replace("\n", "")
 
-        if len(word) != 7:
-            return []
-
         passwords = []
+        if len(word) == 7:
+            base = word[0].upper() + word[1:]
 
-        base = word[0].upper() + word[1:]
+            for i in range(0, 10):
+                passwords.append(base + str(i))
 
-        for i in range(0, 10):
-            passwords.append(base + str(i))
-
-        return passwords
+            return passwords
+        elif len(word) == 5:
+            return [word.replace('a', '@').replace('l', '1')]
+        else:
+            return [word]
 
     def clean(self):
         self.list.close()
+
+
+rules.append(Passwordify1)

@@ -10,24 +10,29 @@ from cracker import *
 import hashlib
 from rules import Passwordify1, wordlist
 import sys
+import multiprocessing
 import time
-
-
-h = "Puzzles4"
-print(hashlib.sha256(bytes(h, encoding="utf-8")).hexdigest())
-
-print(__name__)
-
-t1 = Cracker(0, 1)
-t2 = Cracker(1, 2)
-
-t1.start()
-t2.start()
 
 
 def print_writer(data, file):
     print(data)
     file.write(data + "\n")
+
+def load_hashes(file):
+    hashes = []
+    data = None
+    with open(file, 'r') as file:
+        data = file.readlines()
+
+    #try:
+    for line in data:
+        line = line.split(":")
+        hashes.append(Hash(line[1], line[0]))
+
+    #except:
+        #print("Error reading in hashes")
+
+    return hashes
 
 
 def main():
@@ -39,10 +44,11 @@ def main():
     if len(sys.argv) <= 1:
         print("Usage: python3 main.py <hashfile> <outfile>")
     elif len(sys.argv) == 3:
+        print("Loading parameter settings...")
         hashFile = sys.argv[1]
         outFile = sys.argv[2]
         try:
-            hashes = read_hashes(hashFile)
+            hashes = load_hashes(hashFile)
         except IOError:
             print("Error: Unable to read hash file (%s)" % (hashFile))
             return
@@ -53,20 +59,22 @@ def main():
             print("Error: Unable to create output file (%s)" % (outFile))
             return
 
-        print_writer("hello world!", outStream)
-
+    lines = 0
     with open(wordlist, "r") as file:
-        lines = 0
         for line in file:
             lines += 1
 
-        print(lines)
+        print("Wordlist length: " + str(lines))
 
-    passGen = Passwordify1(235800, 235886)
-    passwd = ""
-    while passwd is not None:
-        passwd = passGen.next()
-        print(passwd)
+    p1 = multiprocessing.Process(target=crack, args=((0, lines), hashes))
+    start = time.time()
+    p1.start()
+    p1.join()
+    end = time.time()
+
+    print("Time: %.20f seconds" % (end - start))
+
+
 
 if __name__ == "__main__":
     main()
