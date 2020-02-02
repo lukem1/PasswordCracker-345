@@ -11,16 +11,20 @@ import multiprocessing
 from rules import *
 
 
-class Hash():
+class Hash:
 
-    def __init__(self, value, username=""):
+    def __init__(self, value, id, username=""):
         self.value = value
+        self.id = id
         self.username = username
         self.cracked = False
         self.password = None
 
-    def guess(self, password):
+    def guess(self, password, hashStat, hashLock):
         if calc_hash(password) == self.value:
+            hashLock.acquire()
+            hashStat[self.id] = 1
+            hashLock.release()
             self.cracked = True
             self.password = password
             print("%s:%s    (%s)" % (self.value, self.password, self.username))
@@ -29,21 +33,32 @@ class Hash():
             return False
 
 
-def crack(bounds, hashes):
-    print("Starting")
+def crack(hashes, hashStat, hashLock, procCount, procID):
+    print("Started Process %d" % procID)
     for r in rules:
-        lower, upper = bounds
-        nr = r(lower, upper)
+        step = r.UPPERBOUND//procCount
+        lower = step*(procID-1)
+        if procCount == procID:
+            upper = r.UPPERBOUND
+        else:
+            upper = step*procID
+        gen = r(lower, upper)
+        print("Range info:: Current: %d-%d, Available: %d-%d" % (lower, upper, 0, r.UPPERBOUND))
+        #pNote = 0
         for i in range(lower, upper):
-
+            """pNote += 1
+            if pNote == 100:
+                pNote = 0
+                print("Progress: %d/%d" % (i, upper))"""
             if len(hashes) == 0:
                 return
-            guesses = nr.next()
+            guesses = gen.next()
             for g in guesses:
                 for h in hashes:
-                    h.guess(g)
+                    h.guess(g, hashStat, hashLock)
 
-    print("Ending")
+    print("Ended Process %d" % procID)
+
 
 # Calculate and return the 256 bit shasum of a password
 def calc_hash(password):

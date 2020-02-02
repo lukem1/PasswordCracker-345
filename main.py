@@ -8,7 +8,7 @@
 
 from cracker import *
 import hashlib
-from rules import Passwordify1, wordlist
+from rules import *
 import sys
 import multiprocessing
 import time
@@ -25,9 +25,11 @@ def load_hashes(file):
         data = file.readlines()
 
     #try:
+    count = 0
     for line in data:
         line = line.split(":")
-        hashes.append(Hash(line[1], line[0]))
+        hashes.append(Hash(line[1], count, line[0]))
+        count += 1
 
     #except:
         #print("Error reading in hashes")
@@ -64,14 +66,27 @@ def main():
         for line in file:
             lines += 1
 
-        print("Wordlist length: " + str(lines))
 
-    p1 = multiprocessing.Process(target=crack, args=((0, lines), hashes))
+
+    procCount = 2 #multiprocessing.cpu_count()
+    hashLock = multiprocessing.Lock()
+    hashStatus = multiprocessing.Array('i', [0]*len(hashes))
+
+    print("Wordlist length: " + str(lines))
+    print("Available CPUs: %d" % (multiprocessing.cpu_count()))
+    print("Creating %d processes..." % procCount)
     start = time.time()
-    p1.start()
-    p1.join()
-    end = time.time()
+    procs = []
+    for i in range(1, procCount+1):
+        p = multiprocessing.Process(target=crack, args=(hashes, hashStatus, hashLock, procCount, i))
+        p.start()
+        procs.append(p)
 
+    for p in procs:
+        p.join()
+
+    end = time.time()
+    print(hashStatus[:])
     print("Time: %.20f seconds" % (end - start))
 
 
