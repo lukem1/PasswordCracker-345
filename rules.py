@@ -13,6 +13,18 @@ DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 wordlist = "/usr/share/dict/words"
 
 
+def permutate(alphabet, maxlen):
+    sets = []
+    for L in range(0, maxlen):
+        for subset in itertools.permutations(alphabet, L):
+            s = ""
+            for c in subset:
+                s += c
+            sets.append(s)
+
+    return sets
+
+
 class Rule:
     upperBound = None  # Maximum sequence number (eg wordlist size or number of combinations)
 
@@ -101,8 +113,9 @@ class Combinations1(Rule):
     def next(self):
         base = "%05d" % self.sequence
         codes = [base]
-        specials = "*~!#"
-        perms = ["".join(x) for x in itertools.chain.from_iterable(itertools.permutations(specials, i + 1) for i in range(0, len(specials)))]
+        specials = ['#', '~', '*', '!']
+        perms = permutate(specials, len(specials)+1)
+        perms.remove("")
 
         for p in perms:
             codes.append(p+base)
@@ -115,6 +128,7 @@ class Combinations1(Rule):
 
 
 rules.append(Combinations1)
+
 
 class Combinations2(Rule):
     UPPERBOUND = 11111110
@@ -133,7 +147,7 @@ class Combinations2(Rule):
 
     def next(self):
         self.steppers.step()
-        return self.steppers.build()
+        return [self.steppers.build()]
 
     def clean(self):
         pass # No cleaning required
