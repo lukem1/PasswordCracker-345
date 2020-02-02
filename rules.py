@@ -9,6 +9,7 @@
 import itertools
 
 rules = []
+DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 wordlist = "/usr/share/dict/words"
 
 
@@ -69,6 +70,27 @@ class Passwordify(Rule):
 rules.append(Passwordify)
 
 
+class Stepper:
+    def __init__(self, alphabet):
+        self.next = None
+        self.counter = -1
+        self.alphabet = alphabet
+        self.value = ''
+
+    def step(self):
+        self.counter += 1
+        if self.counter == len(self.alphabet):
+            self.counter = 0
+            if self.next is not None:
+                self.next.step()
+        self.value = self.alphabet[self.counter]
+
+    def build(self):
+        if self.next is not None:
+            return self.next.build() + self.value
+        return self.value
+
+
 class Combinations1(Rule):
     UPPERBOUND = 99999
 
@@ -93,3 +115,27 @@ class Combinations1(Rule):
 
 
 rules.append(Combinations1)
+
+class Combinations2(Rule):
+    UPPERBOUND = 11111110
+
+    def __init__(self, lower, upper):
+        Rule.__init__(self, lower, upper)
+        self.steppers = Stepper(DIGITS)
+        self.sequence = 0
+        cstepper = self.steppers
+        for i in range(0, 6):
+            cstepper.next = Stepper(DIGITS)
+            cstepper = cstepper.next
+
+        for i in range(0, lower):
+            self.next()
+
+    def next(self):
+        self.steppers.step()
+        return self.steppers.build()
+
+    def clean(self):
+        pass # No cleaning required
+
+rules.append(Combinations2)

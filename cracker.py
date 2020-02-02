@@ -56,6 +56,7 @@ def crack(hashes, hashStat, hashLock, procCount, procID):
             for g in guesses:
                 for h in hashes:
                     h.guess(g, hashStat, hashLock)
+        gen.clean()
 
     print("Ended Process %d" % procID)
 

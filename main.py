@@ -66,11 +66,15 @@ def main():
         for line in file:
             lines += 1
 
-
-
-    procCount = 2 #multiprocessing.cpu_count()
+    procCount = 4 #multiprocessing.cpu_count()
     hashLock = multiprocessing.Lock()
     hashStatus = multiprocessing.Array('i', [0]*len(hashes))
+
+    test = Combinations2(0, 11111110)
+    for i in range(0, 11111110):
+        if test.next() == "000":
+            print("It was 000")
+            break
 
     print("Wordlist length: " + str(lines))
     print("Available CPUs: %d" % (multiprocessing.cpu_count()))
