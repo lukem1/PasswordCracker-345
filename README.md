@@ -30,6 +30,7 @@ to fully take advantage of available cpus.
 ### Wordlist Information
 The program uses `/usr/share/dict/words` as the default wordlist
 
+If necessary this can be changed in rules.py (wordlist variable around line 19)
 ### Testing and Practical Time Analysis
 Testing was performed to verify correctness and capabilities as well as inform late stage development decisions. 
 
