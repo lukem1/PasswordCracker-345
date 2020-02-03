@@ -21,14 +21,17 @@ class Hash:
         self.password = None
 
     def guess(self, password, hashStat, hashLock):
-        if calc_hash(password) == self.value:
-            hashLock.acquire()
-            hashStat[self.id] = 1
-            hashLock.release()
-            self.cracked = True
-            self.password = password
-            print("%s:%s    (%s)" % (self.value, self.password, self.username))
-            return True
+        if not self.cracked:
+            if calc_hash(password) == self.value:
+                hashLock.acquire()
+                hashStat[self.id] = 1
+                hashLock.release()
+                self.cracked = True
+                self.password = password
+                print("%s:%s    (%s)" % (self.value, self.password, self.username))
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -44,14 +47,25 @@ def crack(hashes, hashStat, hashLock, procCount, procID):
             upper = step*procID
         gen = r(lower)
         print("Range info:: Current: %d-%d, Available: %d-%d" % (lower, upper, 0, r.UPPERBOUND))
-        #pNote = 0
+        statCount = 0
         for i in range(lower, upper):
-            """pNote += 1
-            if pNote == 100:
-                pNote = 0
-                print("Progress: %d/%d" % (i, upper))"""
-            if len(hashes) == 0:
-                return
+            statCount += 1
+            if statCount == (1000+procID):  # procID addition to induce variation between processes
+                statCount = 0
+                #print("Progress: %d/%d" % (i, upper))
+                hashLock.acquire()
+                done = True
+                for h in hashes:
+                    if not h.cracked:
+                        status = hashStat[h.id]
+                        if status == 1:
+                            h.cracked = True
+                        else:
+                            done = False
+                hashLock.release()
+                if done:
+                    return
+
             guesses = gen.next()
             for g in guesses:
                 for h in hashes:

@@ -32,6 +32,10 @@ A set of 15 hashes was generated using various passwords that conformed to the r
 
 The table below shows the time it took the program to crack these hashes with a given number of processes.
 
+This testing was completed before the program was completely optimized and finalized.
+
+After further optimization the completion time with 4 processes has been reduced to approximately 70 seconds.
+
 
 | Processes | Time (Seconds) |
 | :-------: | :------------: |
