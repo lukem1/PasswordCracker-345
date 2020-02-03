@@ -34,7 +34,7 @@ The table below shows the time it took the program to crack these hashes with a 
 
 This testing was completed before the program was completely optimized and finalized.
 
-After further optimization the completion time with 4 processes has been reduced to approximately 70 seconds.
+After further optimization the completion time with 4 processes has been reduced to approximately `65 seconds`.
 
 
 | Processes | Time (Seconds) |

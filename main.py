@@ -17,7 +17,7 @@ try:
     import psutil
     CPUCOUNT = psutil.cpu_count(logical=False)
 except ImportError:
-    print("!!! for improved multiprocessing install the psutil module for python")
+    print("!!! for improved multiprocessing performance install the psutil module for python")
     c = multiprocessing.cpu_count()
     if c == 1:
         CPUCOUNT = 1
@@ -28,6 +28,8 @@ def print_writer(data, file):
     print(data)
     file.write(data + "\n")
 
+
+# Load in hashes from a file
 def load_hashes(file):
     hashes = []
     data = None
@@ -62,13 +64,13 @@ def main():
         try:
             hashes = load_hashes(hashFile)
         except IOError:
-            print("Error: Unable to read hash file (%s)" % (hashFile))
+            print("Error: Unable to read hash file (%s)" % hashFile)
             return
 
         try:
             outStream = open(outFile, "w+")
         except IOError:
-            print("Error: Unable to create output file (%s)" % (outFile))
+            print("Error: Unable to create output file (%s)" % outFile)
             return
 
     lines = 0
@@ -95,7 +97,6 @@ def main():
     end = time.time()
     print(hashStatus[:])
     print("Time: %.20f seconds" % (end - start))
-
 
 
 if __name__ == "__main__":

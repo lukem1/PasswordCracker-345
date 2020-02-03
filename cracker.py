@@ -7,15 +7,15 @@
 #
 
 import hashlib
-import multiprocessing
 from rules import *
 
 
+# Class to store properties of hashes and handle "guessing"
 class Hash:
 
-    def __init__(self, value, id, username=""):
+    def __init__(self, value, hid, username=""):
         self.value = value
-        self.id = id
+        self.id = hid
         self.username = username
         self.cracked = False
         self.password = None
@@ -36,9 +36,11 @@ class Hash:
             return False
 
 
+# Function to control cracking processes
 def crack(hashes, hashStat, hashLock, procCount, procID):
     print("Started Process %d" % procID)
     for r in rules:
+        # Calculate the range that should be processed
         step = r.UPPERBOUND//procCount
         lower = step*(procID-1)
         if procCount == procID:
@@ -49,6 +51,7 @@ def crack(hashes, hashStat, hashLock, procCount, procID):
         print("Range info:: Current: %d-%d, Available: %d-%d" % (lower, upper, 0, r.UPPERBOUND))
         statCount = 0
         for i in range(lower, upper):
+            # Every ~1000 cycles check progress of other procs and end if all hashes have been cracked
             statCount += 1
             if statCount == (1000+procID):  # procID addition to induce variation between processes
                 statCount = 0
@@ -65,8 +68,9 @@ def crack(hashes, hashStat, hashLock, procCount, procID):
                 hashLock.release()
                 if done:
                     return
-
+            # Generate the next set of guesses
             guesses = gen.next()
+            # Check the guesses against the hashes
             for g in guesses:
                 for h in hashes:
                     h.guess(g, hashStat, hashLock)

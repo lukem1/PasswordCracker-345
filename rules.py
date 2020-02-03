@@ -8,13 +8,18 @@
 
 import itertools
 
+# List of all rules that the cracker will use
 rules = []
+
+# Alphabets
 SPECIALS = ['#', '~', '*', '!']
 DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+# Default wordlist
 wordlist = "/usr/share/dict/words"
 
 
-# Function for generating permutations of an alphabet
+# Function for generating permutations of an alphabet with no repetitions
 def permutate(alphabet, maxlen):
     sets = []
     for L in range(0, maxlen):
