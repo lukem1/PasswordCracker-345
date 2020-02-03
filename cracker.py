@@ -42,7 +42,7 @@ def crack(hashes, hashStat, hashLock, procCount, procID):
             upper = r.UPPERBOUND
         else:
             upper = step*procID
-        gen = r(lower, upper)
+        gen = r(lower)
         print("Range info:: Current: %d-%d, Available: %d-%d" % (lower, upper, 0, r.UPPERBOUND))
         #pNote = 0
         for i in range(lower, upper):

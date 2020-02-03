@@ -9,10 +9,12 @@
 import itertools
 
 rules = []
+SPECIALS = ['#', '~', '*', '!']
 DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 wordlist = "/usr/share/dict/words"
 
 
+# Function for generating permutations of an alphabet
 def permutate(alphabet, maxlen):
     sets = []
     for L in range(0, maxlen):
@@ -25,11 +27,13 @@ def permutate(alphabet, maxlen):
     return sets
 
 
+# The following class provides a template for constructing rules for the password cracker
+# Appending a subclass of Rule to the rules array will pass the rule to the program
 class Rule:
-    upperBound = None  # Maximum sequence number (eg wordlist size or number of combinations)
+    UPPERBOUND = None  # Maximum sequence number (eg wordlist size or number of combinations)
 
     # Initialize the rule and move to the lower bound
-    def __init__(self, lower, upper):
+    def __init__(self, lower):
         self.sequence = 0
 
     # Return the next password(s) in the sequence and add to the sequence number
@@ -42,14 +46,15 @@ class Rule:
         raise NotImplementedError
 
 
+# The following class implements all of the wordlist based rules
 class Passwordify(Rule):
     UPPERBOUND = 0
     with open(wordlist, "r") as file:
         for line in file:
             UPPERBOUND += 1
 
-    def __init__(self, lower, upper):
-        Rule.__init__(self, lower, upper)
+    def __init__(self, lower):
+        Rule.__init__(self, lower)
         self.list = open(wordlist, 'r')
         for i in range(0, lower):
             self.next()
@@ -82,6 +87,7 @@ class Passwordify(Rule):
 rules.append(Passwordify)
 
 
+# The following class is used to help generate permutations of an alphabet
 class Stepper:
     def __init__(self, alphabet):
         self.next = None
@@ -103,18 +109,18 @@ class Stepper:
         return self.value
 
 
+# The following class implements the 5 digit code  with special characters rule
 class Combinations1(Rule):
     UPPERBOUND = 99999
 
-    def __init__(self, lower, upper):
-        Rule.__init__(self, lower, upper)
+    def __init__(self, lower):
+        Rule.__init__(self, lower)
         self.sequence = lower
 
     def next(self):
         base = "%05d" % self.sequence
         codes = [base]
-        specials = ['#', '~', '*', '!']
-        perms = permutate(specials, len(specials)+1)
+        perms = permutate(SPECIALS, len(SPECIALS)+1)
         perms.remove("")
 
         for p in perms:
@@ -130,11 +136,12 @@ class Combinations1(Rule):
 rules.append(Combinations1)
 
 
+# The following class implements the up to 7 digit code rule
 class Combinations2(Rule):
     UPPERBOUND = 11111110
 
-    def __init__(self, lower, upper):
-        Rule.__init__(self, lower, upper)
+    def __init__(self, lower):
+        Rule.__init__(self, lower)
         self.steppers = Stepper(DIGITS)
         self.sequence = 0
         cstepper = self.steppers
@@ -150,6 +157,7 @@ class Combinations2(Rule):
         return [self.steppers.build()]
 
     def clean(self):
-        pass # No cleaning required
+        pass  # No cleaning required
+
 
 rules.append(Combinations2)

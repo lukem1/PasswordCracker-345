@@ -7,12 +7,22 @@
 #
 
 from cracker import *
-import hashlib
+import multiprocessing
 from rules import *
 import sys
-import multiprocessing
 import time
 
+CPUCOUNT = 0
+try:
+    import psutil
+    CPUCOUNT = psutil.cpu_count(logical=False)
+except ImportError:
+    print("!!! for improved multiprocessing install the psutil module for python")
+    c = multiprocessing.cpu_count()
+    if c == 1:
+        CPUCOUNT = 1
+    else:
+        CPUCOUNT = c // 2
 
 def print_writer(data, file):
     print(data)
@@ -66,26 +76,16 @@ def main():
         for line in file:
             lines += 1
 
-    if multiprocessing.cpu_count() == 1:
-        procCount = 1
-    else:
-        procCount = multiprocessing.cpu_count() // 2
-
     hashLock = multiprocessing.Lock()
     hashStatus = multiprocessing.Array('i', [0]*len(hashes))
 
-    test = Combinations2(0, Combinations2.UPPERBOUND)
-    print(Combinations2.UPPERBOUND)
-    #for i in range(0, Combinations2.UPPERBOUND):
-     #   print(test.next())
-
     print("Wordlist length: " + str(lines))
     print("Available CPUs: %d" % (multiprocessing.cpu_count()))
-    print("Creating %d processes..." % procCount)
+    print("Creating %d processes..." % CPUCOUNT)
     start = time.time()
     procs = []
-    for i in range(1, procCount+1):
-        p = multiprocessing.Process(target=crack, args=(hashes, hashStatus, hashLock, procCount, i))
+    for i in range(1, CPUCOUNT+1):
+        p = multiprocessing.Process(target=crack, args=(hashes, hashStatus, hashLock, CPUCOUNT, i))
         p.start()
         procs.append(p)
 
