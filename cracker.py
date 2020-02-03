@@ -10,6 +10,12 @@ import hashlib
 from rules import *
 
 
+# Function to write data to the output file
+def writer(data, file):
+    with open(file, 'a') as f:
+        f.write(data + "\n")
+
+
 # Class to store properties of hashes and handle "guessing"
 class Hash:
 
@@ -20,14 +26,16 @@ class Hash:
         self.cracked = False
         self.password = None
 
-    def guess(self, password, hashStat, hashLock):
+    def guess(self, password, hashStat, hashLock, outFile):
         if not self.cracked:
             if calc_hash(password) == self.value:
-                hashLock.acquire()
-                hashStat[self.id] = 1
-                hashLock.release()
                 self.cracked = True
                 self.password = password
+                hashLock.acquire()
+                hashStat[self.id] = 1
+                writer("%s:%s" % (self.value, self.password), outFile)
+                hashLock.release()
+
                 print("%s:%s    (%s)" % (self.value, self.password, self.username))
                 return True
             else:
@@ -37,8 +45,8 @@ class Hash:
 
 
 # Function to control cracking processes
-def crack(hashes, hashStat, hashLock, procCount, procID):
-    print("Started Process %d" % procID)
+def crack(hashes, hashStat, hashLock, procCount, procID, outFile):
+    #print("Started Process %d" % procID)
     for r in rules:
         # Calculate the range that should be processed
         step = r.UPPERBOUND//procCount
@@ -48,7 +56,7 @@ def crack(hashes, hashStat, hashLock, procCount, procID):
         else:
             upper = step*procID
         gen = r(lower)
-        print("Range info:: Current: %d-%d, Available: %d-%d" % (lower, upper, 0, r.UPPERBOUND))
+        print("Process %d status: Range(%d-%d) of Available(%d-%d) (%s)" % (procID, lower, upper, 0, r.UPPERBOUND, r.NAME))
         statCount = 0
         for i in range(lower, upper):
             # Every ~1000 cycles check progress of other procs and end if all hashes have been cracked
@@ -73,10 +81,10 @@ def crack(hashes, hashStat, hashLock, procCount, procID):
             # Check the guesses against the hashes
             for g in guesses:
                 for h in hashes:
-                    h.guess(g, hashStat, hashLock)
+                    h.guess(g, hashStat, hashLock, outFile)
         gen.clean()
 
-    print("Ended Process %d" % procID)
+    #print("Ended Process %d" % procID)
 
 
 # Calculate and return the 256 bit shasum of a password

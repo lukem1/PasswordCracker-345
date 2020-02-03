@@ -35,6 +35,7 @@ def permutate(alphabet, maxlen):
 # The following class provides a template for constructing rules for the password cracker
 # Appending a subclass of Rule to the rules array will pass the rule to the program
 class Rule:
+    NAME = ""
     UPPERBOUND = None  # Maximum sequence number (eg wordlist size or number of combinations)
 
     # Initialize the rule and move to the lower bound
@@ -53,6 +54,7 @@ class Rule:
 
 # The following class implements all of the wordlist based rules
 class Passwordify(Rule):
+    NAME = "Passwordify: wordlist based rules"
     UPPERBOUND = 0
     with open(wordlist, "r") as file:
         for line in file:
@@ -116,6 +118,7 @@ class Stepper:
 
 # The following class implements the 5 digit code  with special characters rule
 class Combinations1(Rule):
+    NAME = "Combinations1: special chars + 5 digit code"
     UPPERBOUND = 99999
 
     def __init__(self, lower):
@@ -143,6 +146,7 @@ rules.append(Combinations1)
 
 # The following class implements the up to 7 digit code rule
 class Combinations2(Rule):
+    NAME = "Combinations2: <= 7 Digit Codes"
     UPPERBOUND = 11111110
 
     def __init__(self, lower):

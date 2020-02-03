@@ -20,6 +20,13 @@ will run with or without the module, but may be slower without it on systems tha
 - When the psutil module is not available the program spawns `(available cpus // 2)` processes (minumum 1).
 - When the psutil module is available the program spawns one process for each available hardware cpu core.
 
+#### Multiprocessing vs Multithreading in Python
+Due to the [Python Global Interpreter Lock](https://wiki.python.org/moin/GlobalInterpreterLock) (GIL) multithreaded CPython
+programs are unable to fully take advantage of systems with multiple processors.
+
+Multiprocessing bypasses the GIL by creating multiple python instances and allows multiprocessed programs
+to fully take advantage of available cpus.
+
 ### Wordlist Information
 The program uses `/usr/share/dict/words` as the default wordlist
 
