@@ -44,7 +44,6 @@ class Rule:
 
     # Return the next password(s) in the sequence and add to the sequence number
     def next(self):
-        self.sequence += 1
         raise NotImplementedError
 
     # Close wordlists and perform other cleanup actions
@@ -69,13 +68,11 @@ class Passwordify(Rule):
     def next(self):
         self.sequence += 1
 
-        if self.sequence > self.UPPERBOUND:
-            return None
-
         word = self.list.readline().replace("\n", "")
 
         passwords = []
         if len(word) == 7:
+            passwords.append(word)
             base = word[0].upper() + word[1:]
 
             for i in range(0, 10):
@@ -83,7 +80,7 @@ class Passwordify(Rule):
 
             return passwords
         elif len(word) == 5:
-            return [word.replace('a', '@').replace('l', '1')]
+            return [word, word.replace('a', '@').replace('l', '1')]
         else:
             return [word]
 
