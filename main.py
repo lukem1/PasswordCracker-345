@@ -35,6 +35,8 @@ def load_hashes(file):
     try:
         count = 0
         for line in data:
+            if line == "":
+                break
             line = line.replace('\n', '')
             line = line.split(":")
             hashes.append(Hash(line[1], count, line[0]))
