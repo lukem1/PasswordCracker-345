@@ -26,11 +26,11 @@ class Hash:
         self.cracked = False
         self.password = None
 
-    def guess(self, password, hashStat, hashLock, outFile):
+    def guess(self, passhashT, hashStat, hashLock, outFile):
         if not self.cracked:
-            if calc_hash(password) == self.value:
+            if passhashT[0] == self.value:
                 self.cracked = True
-                self.password = password
+                self.password = passhashT[1]
                 hashLock.acquire()
                 hashStat[self.id] = 1
                 writer("%s:%s" % (self.value, self.password), outFile)
@@ -78,8 +78,11 @@ def crack(hashes, hashStat, hashLock, procCount, procID, outFile):
                     return
             # Generate the next set of guesses
             guesses = gen.next()
-            # Check the guesses against the hashes
+            guessTuples = []
             for g in guesses:
+                guessTuples.append((calc_hash(g), g))
+            # Check the guesses against the hashes
+            for g in guessTuples:
                 for h in hashes:
                     h.guess(g, hashStat, hashLock, outFile)
         gen.clean()
